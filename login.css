@@ -1,0 +1,163 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #1a1a1a;
+  --surface:  #242424;
+  --input-bg: #2e2e2e;
+  --input-f:  #363636;
+  --orange:   #e8600a;
+  --orange-h: #d05508;
+  --text:     #efefef;
+  --muted:    #777;
+  --muted2:   #444;
+  --error:    #e05555;
+  --radius:   9px;
+}
+
+body {
+  min-height: 100vh;
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Sora', sans-serif;
+  color: var(--text);
+  padding: 32px 20px;
+}
+
+.auth-main {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── CARD ── */
+.card {
+  width: 100%;
+  max-width: 400px;
+  background: var(--bg);
+  border-radius: 16px;
+  padding: 40px 36px 32px;
+}
+
+.card-logo {
+  width: 40px;
+  height: 40px;
+  background: var(--orange);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 22px;
+}
+
+.card h1 {
+  font-size: 21px;
+  font-weight: 600;
+  margin-bottom: 5px;
+  letter-spacing: -0.3px;
+}
+
+.card .sub {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 28px;
+}
+
+/* ── ERROR ── */
+.error-msg {
+  display: none;
+  background: rgba(224,85,85,0.1);
+  color: var(--error);
+  font-size: 12.5px;
+  padding: 9px 12px;
+  border-radius: var(--radius);
+  margin-bottom: 16px;
+}
+.error-msg.show { display: block; }
+
+/* ── FIELDS ── */
+.field { margin-bottom: 16px; }
+
+label {
+  display: block;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--muted);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+  width: 100%;
+  background: var(--input-bg);
+  border: none;
+  outline: none;
+  border-radius: var(--radius);
+  padding: 11px 13px;
+  font-size: 13.5px;
+  font-family: 'Sora', sans-serif;
+  color: var(--text);
+  transition: background 0.14s;
+}
+input:focus { background: var(--input-f); }
+input::placeholder { color: var(--muted2); }
+
+/* ── BUTTON ── */
+.btn-primary {
+  width: 100%;
+  padding: 12px;
+  background: var(--orange);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 13.5px;
+  font-weight: 600;
+  font-family: 'Sora', sans-serif;
+  cursor: pointer;
+  margin-top: 6px;
+  transition: background 0.14s, opacity 0.14s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+}
+.btn-primary:hover { background: var(--orange-h); }
+.btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* ── SPINNER ── */
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255,255,255,0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── FOOTER LINK ── */
+.footer-link {
+  margin-top: 20px;
+  font-size: 12.5px;
+  color: var(--muted);
+  text-align: center;
+}
+.footer-link a {
+  color: var(--orange);
+  text-decoration: none;
+  font-weight: 500;
+}
+.footer-link a:hover { text-decoration: underline; }
+
+@media (max-width: 480px) {
+  .card { padding: 32px 24px 28px; }
+}

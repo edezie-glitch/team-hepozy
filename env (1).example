@@ -1,0 +1,9 @@
+ 
+
+# News APIs (free tiers)
+NEWSAPI_KEY=af4003219e914b5ba261a2bd4f64b859
+GNEWS_KEY=b6932718ddf9ebb3092364937ade5c0b
+
+# Ollama runs locally — no key needed
+OLLAMA_MODEL=llama3
+OLLAMA_URL=http://localhost:11434

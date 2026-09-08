@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hepozy</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="home.css">
+</head>
+<body>
+
+<!-- Mobile overlay -->
+<div class="mob-overlay" id="mobOverlay" onclick="closeMobile()"></div>
+
+<!-- ══ SIDEBAR ══════════════════════════════════════════════ -->
+<aside class="sidebar" id="sidebar">
+
+  <div class="sidebar-top">
+
+    <!-- Hamburger — click locks sidebar open/closed -->
+    <button class="sidebar-row" id="hamburgerBtn" onclick="toggleSidebar()" title="Toggle sidebar">
+      <div class="hamburger-icon" id="hamburgerIcon">
+        <span></span><span></span><span></span>
+      </div>
+      <span class="row-label brand-label">Hepozy</span>
+    </button>
+
+    <!-- New Chat -->
+    <button class="sidebar-row" id="btnNewChat" onclick="newChat()" title="New chat">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+      <span class="row-label">New chat</span>
+    </button>
+
+    <!-- Search -->
+    <button class="sidebar-row" onclick="focusSearch()" title="Search chats">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/>
+      </svg>
+      <span class="row-label">Search</span>
+    </button>
+
+    <!-- Settings -->
+    <button class="sidebar-row" onclick="openSettings()" title="Settings">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+      </svg>
+      <span class="row-label">Settings</span>
+    </button>
+
+  </div>
+
+  <!-- divider + history (visible when expanded) -->
+  <div class="sidebar-divider"></div>
+
+  <div class="history-section">
+    <div class="search-wrap">
+      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/>
+      </svg>
+      <input type="text" placeholder="Search chats" id="searchInput" oninput="filterHistory()">
+    </div>
+    <div class="section-label">Recent</div>
+    <div class="history-list" id="historyList"></div>
+  </div>
+
+  <!-- Profile -->
+  <div class="sidebar-bottom">
+    <button class="sidebar-row profile-row" id="profileRow" onclick="toggleProfileMenu()" title="Profile">
+      <div class="avatar-circle" id="avatarCircle">U</div>
+      <span class="row-label profile-label">
+        <span class="profile-name" id="profileName">Username</span>
+        <span class="profile-sub">Free plan</span>
+      </span>
+    </button>
+
+    <!-- Profile dropdown -->
+    <div class="profile-menu" id="profileMenu">
+      <button class="profile-menu-item" onclick="goToSettings()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+        Settings
+      </button>
+      <div class="profile-menu-divider"></div>
+      <button class="profile-menu-item danger" onclick="logout()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+        Log out
+      </button>
+    </div>
+  </div>
+
+</aside>
+
+<!-- ══ CHAT AREA ═════════════════════════════════════════════ -->
+<section class="chat-area">
+
+  <div class="topbar">
+    <button class="topbar-btn mob-menu-btn" id="mobMenuBtn" onclick="openMobile()" title="Open sidebar">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+      </svg>
+    </button>
+    <div class="topbar-right">
+      <span class="topbar-title" id="topbarTitle"></span>
+    </div>
+  </div>
+
+  <!-- Messages -->
+  <div class="messages" id="messages"></div>
+
+  <!-- Center welcome + input (no conversation yet) -->
+  <div class="center-state" id="centerState">
+    <div class="welcome-logo">H</div>
+    <h2 class="welcome-title" id="welcomeTitle">How can I help you?</h2>
+    <p class="welcome-sub">Ask anything. I will research and reason through it.</p>
+    <div class="center-input-wrap">
+      <div class="input-box" id="centerInputBox">
+        <textarea id="msgInputCenter" placeholder="Ask hepozy..." rows="1"
+          onkeydown="handleKey(event,'center')" oninput="autoResize(this)"></textarea>
+        <div class="input-actions">
+          <div class="input-left">
+            <label class="icon-btn" title="Upload file">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+              </svg>
+              Upload
+              <input type="file" multiple onchange="stageFile(this)" style="display:none;">
+            </label>
+          </div>
+          <button class="send-btn" onclick="sendMessage('center')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+              <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+            </svg>
+            Send
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom input (active conversation) -->
+  <!-- FIX: id="bottomInputBox" moved here — this is the REAL bottom
+       input box. Previously the id lived on a dead empty <div> at
+       the end of <body> (removed below), which broke stageFile()'s
+       lookup and caused a stray flex child that pushed layout right. -->
+  <div class="input-area" id="inputArea" style="display:none;">
+    <div class="input-box" id="bottomInputBox">
+      <textarea id="msgInputBottom" placeholder="Ask hepozy..." rows="1"
+        onkeydown="handleKey(event,'bottom')" oninput="autoResize(this)"></textarea>
+      <div class="input-actions">
+        <div class="input-left">
+          <label class="icon-btn" title="Upload file">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+            Upload
+            <input type="file" multiple onchange="stageFile(this)" style="display:none;">
+          </label>
+        </div>
+        <button class="send-btn" onclick="sendMessage('bottom')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+            <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+          </svg>
+          Send
+        </button>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- Settings modal -->
+<div class="modal-backdrop" id="settingsBackdrop" onclick="closeSettings()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <span>Settings</span>
+      <button class="modal-close" onclick="closeSettings()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="settings-section">
+        <div class="settings-label">Account</div>
+        <div class="settings-row">
+          <span>Username</span>
+          <span class="settings-val" id="settingsUsername"></span>
+        </div>
+      </div>
+      <div class="settings-section">
+        <div class="settings-label">Appearance</div>
+        <div class="settings-row">
+          <span>Theme</span>
+          <span class="settings-val">Dark</span>
+        </div>
+      </div>
+      <div class="settings-section">
+        <div class="settings-label">Danger zone</div>
+        <button class="btn-danger" onclick="logout()">Log out</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- REMOVED: stray <div class="input-box" id="bottomInputBox"></div>
+     that used to sit here. It was an unreferenced, empty flex sibling
+     of .sidebar/.chat-area, which (a) ate horizontal space intended
+     for .chat-area's flex:1, causing the empty right-side panel, and
+     (b) hijacked the id that stageFile() was trying to render into,
+     which is why image previews rendered invisibly instead of in the
+     real input box. -->
+<script src="home.js"></script>
+</body>
+</html>
