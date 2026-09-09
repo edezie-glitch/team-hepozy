@@ -7,8 +7,8 @@ JWT_ALGORITHM=
 JWT_EXPIRE_MINUTES= 
 
 # News APIs (free tiers)
-NEWSAPI_KEY=af4003219e914b5ba261a2bd4f64b859
-GNEWS_KEY=b6932718ddf9ebb3092364937ade5c0b
+NEWSAPI_KEY= 
+GNEWS_KEY= 
 
 # Ollama runs locally — no key needed
 OLLAMA_MODEL=llama3

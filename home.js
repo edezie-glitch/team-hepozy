@@ -1,18 +1,11 @@
-/* ══════════════════════════════════════════════════════════
-   CONFIG
-══════════════════════════════════════════════════════════ */
+// Config
 const API = 'http://localhost:8001';
 
-// Frontend fetch timeout for /chat/send. Kept slightly above the
-// backend's Ollama timeout (30s, see orchestrator.py OLLAMA_TIMEOUT)
-// so the backend gets a chance to fail gracefully and return an error
-// event before the browser gives up on its own. If you change one,
-// change the other and keep this a few seconds ahead.
+// Frontend timeout for sending messages.
+// Keep this slightly longer than the backend timeout.
 const CHAT_SEND_TIMEOUT_MS = 35000;
 
-/* ══════════════════════════════════════════════════════════
-   AUTH GUARD
-══════════════════════════════════════════════════════════ */
+// Auth guard
 const TOKEN    = localStorage.getItem('hepozy_token');
 const USERNAME = localStorage.getItem('hepozy_username') || 'User';
 
@@ -20,9 +13,7 @@ if (!TOKEN) {
   window.location.href = 'login.html';
 }
 
-/* ══════════════════════════════════════════════════════════
-   ELEMENTS
-══════════════════════════════════════════════════════════ */
+// Elements
 const sidebar     = document.getElementById('sidebar');
 const mobOverlay  = document.getElementById('mobOverlay');
 const mobMenuBtn  = document.getElementById('mobMenuBtn');
@@ -34,17 +25,13 @@ const topbarTitle = document.getElementById('topbarTitle');
 const profileMenu = document.getElementById('profileMenu');
 const settingsBg  = document.getElementById('settingsBackdrop');
 
-/* ══════════════════════════════════════════════════════════
-   INIT UI
-══════════════════════════════════════════════════════════ */
+// Initialize user info
 document.getElementById('profileName').textContent      = USERNAME;
 document.getElementById('settingsUsername').textContent = USERNAME;
 document.getElementById('avatarCircle').textContent     = USERNAME.charAt(0).toUpperCase();
 document.getElementById('welcomeTitle').textContent     = `Hi, ${USERNAME}`;
 
-/* ══════════════════════════════════════════════════════════
-   STATE
-══════════════════════════════════════════════════════════ */
+// App state
 let conversations       = [];
 let activeId             = null;
 let conversationStarted  = false;
@@ -53,9 +40,7 @@ let streaming            = false;
 
 const isMobile = () => window.innerWidth <= 640;
 
-/* ══════════════════════════════════════════════════════════
-   SIDEBAR
-══════════════════════════════════════════════════════════ */
+// Sidebar
 function toggleSidebar() {
   if (isMobile()) { openMobile(); return; }
   sidebarLocked = !sidebarLocked;
@@ -93,14 +78,16 @@ function focusSearch() {
     sidebarLocked = true;
     sidebar.classList.add('open');
   }
+
   if (isMobile()) openMobile();
+
   setTimeout(() => document.getElementById('searchInput').focus(), 220);
 }
 
-/* ══════════════════════════════════════════════════════════
-   PROFILE MENU
-══════════════════════════════════════════════════════════ */
-function toggleProfileMenu() { profileMenu.classList.toggle('show'); }
+// Profile menu
+function toggleProfileMenu() {
+  profileMenu.classList.toggle('show');
+}
 
 function goToSettings() {
   profileMenu.classList.remove('show');
@@ -113,24 +100,23 @@ document.addEventListener('click', (e) => {
   }
 });
 
-/* ══════════════════════════════════════════════════════════
-   SETTINGS MODAL
-══════════════════════════════════════════════════════════ */
-function openSettings()  { settingsBg.classList.add('show');    }
-function closeSettings() { settingsBg.classList.remove('show'); }
+// Settings
+function openSettings() {
+  settingsBg.classList.add('show');
+}
 
-/* ══════════════════════════════════════════════════════════
-   LOGOUT
-══════════════════════════════════════════════════════════ */
+function closeSettings() {
+  settingsBg.classList.remove('show');
+}
+
+// Logout
 function logout() {
   localStorage.removeItem('hepozy_token');
   localStorage.removeItem('hepozy_username');
   window.location.href = 'login.html';
 }
 
-/* ══════════════════════════════════════════════════════════
-   TEXTAREA AUTO RESIZE
-══════════════════════════════════════════════════════════ */
+// Textarea
 function autoResize(el) {
   el.style.height = 'auto';
   el.style.height = Math.min(el.scrollHeight, 120) + 'px';
@@ -144,30 +130,22 @@ function handleKey(e, src) {
   }
 }
 
-/* ══════════════════════════════════════════════════════════
-   IMAGE STAGING — select = preview only, nothing sent yet.
-   Actual send happens only when sendMessage() runs (Send click
-   or Enter key), which flushes stagedFiles into the chat.
-
-   FIX: renderStagedPreview() looks up #bottomInputBox / #centerInputBox
-   by id. #bottomInputBox previously pointed at a dead, empty div at
-   the end of <body> (never the visible input box), so previews were
-   rendering into an invisible element. The id now lives on the real
-   .input-box inside #inputArea (see home.html) — no JS change needed
-   here, this was purely an HTML id placement bug.
-══════════════════════════════════════════════════════════ */
+// Image staging
+// Images are previewed first and sent when the message is submitted.
 let stagedFiles = [];
 
 function stageFile(input) {
   if (!input.files.length) return;
 
   for (const file of input.files) {
-    if (!file.type.startsWith('image/')) continue; // only images previewed
+    if (!file.type.startsWith('image/')) continue;
+
     stagedFiles.push(file);
     renderStagedPreview(file);
   }
 
-  input.value = ''; // allow re-selecting the same file again later
+  // Allow selecting the same file again.
+  input.value = '';
 }
 
 function renderStagedPreview(file) {
@@ -181,6 +159,7 @@ function renderStagedPreview(file) {
   }
 
   let strip = activeBox.querySelector('.staged-preview-strip');
+
   if (!strip) {
     strip = document.createElement('div');
     strip.className = 'staged-preview-strip';
@@ -192,6 +171,7 @@ function renderStagedPreview(file) {
   }
 
   const reader = new FileReader();
+
   reader.onload = (e) => {
     const wrap = document.createElement('div');
     wrap.style.position = 'relative';
@@ -215,6 +195,7 @@ function renderStagedPreview(file) {
     removeBtn.style.borderRadius = '50%';
     removeBtn.style.border       = 'none';
     removeBtn.style.cursor       = 'pointer';
+
     removeBtn.onclick = () => {
       stagedFiles = stagedFiles.filter(f => f !== file);
       wrap.remove();
@@ -224,6 +205,7 @@ function renderStagedPreview(file) {
     wrap.appendChild(removeBtn);
     strip.appendChild(wrap);
   };
+
   reader.readAsDataURL(file);
 }
 
@@ -235,6 +217,7 @@ function clearStagedPreviews() {
 function appendImageMessages(time) {
   stagedFiles.forEach(file => {
     const reader = new FileReader();
+
     reader.onload = (e) => {
       const row = document.createElement('div');
       row.className = 'msg-row user';
@@ -257,23 +240,17 @@ function appendImageMessages(time) {
       row.appendChild(bubble);
       row.appendChild(ts);
       messagesEl.appendChild(row);
+
       scrollBottom();
     };
+
     reader.readAsDataURL(file);
   });
+
   clearStagedPreviews();
 }
 
-/* ══════════════════════════════════════════════════════════
-   SEND MESSAGE
-
-   FIX: fetch() now has an AbortController timeout. Previously, if
-   the backend hung (e.g. the Supabase blocking-call bug in letigo.py,
-   or a stuck Ollama generation), this fetch would wait forever with
-   no feedback — that's the "typing dots never resolve" bug. Now it
-   fails after CHAT_SEND_TIMEOUT_MS with a visible error message
-   instead of hanging silently.
-══════════════════════════════════════════════════════════ */
+// Send message
 async function sendMessage(src) {
   if (streaming) return;
 
@@ -287,13 +264,14 @@ async function sendMessage(src) {
 
   if (!activeId) await createConversation();
 
-  // Guard against the "fake ID" bug: createConversation() falls back to a
-  // local_<timestamp> placeholder when the backend is unreachable. That ID
-  // is not a valid Supabase UUID — sending it used to fail silently two
-  // steps later (inside /chat/send) instead of here, where the user can
-  // actually see what went wrong. Stop it before it leaves the browser.
+  // Stop if the server could not create a real conversation.
   if (activeId && activeId.startsWith('local_')) {
-    appendMessage('bot', 'Error: Could not reach the server to start this conversation. Check your connection and try again.', timestamp());
+    appendMessage(
+      'bot',
+      'Error: Could not reach the server to start this conversation. Check your connection and try again.',
+      timestamp()
+    );
+
     streaming = false;
     disableSend(false);
     return;
@@ -313,35 +291,48 @@ async function sendMessage(src) {
 
   input.value        = '';
   input.style.height = 'auto';
+
   scrollBottom();
 
-  if (!text) return; // image-only message — nothing to send to backend yet
+  // Image-only messages do not need a backend request.
+  if (!text) return;
 
   if (conv.messages.filter(m => m.role === 'user').length === 1) {
     const title = generateTitle(text);
-    conv.title               = title;
-    topbarTitle.textContent  = title;
+
+    conv.title              = title;
+    topbarTitle.textContent = title;
+
     renderHistory();
-    apiFetch(`/chat/conversations/${activeId}/title`, 'PATCH', { title }).catch(() => {});
+
+    apiFetch(`/chat/conversations/${activeId}/title`, 'PATCH', { title })
+      .catch(() => {});
   }
 
   const typingRow = appendTyping();
+
   streaming = true;
   disableSend(true);
 
   let fullReply = '';
 
   const controller = new AbortController();
-  const timeoutId  = setTimeout(() => controller.abort(), CHAT_SEND_TIMEOUT_MS);
+  const timeoutId  = setTimeout(
+    () => controller.abort(),
+    CHAT_SEND_TIMEOUT_MS
+  );
 
   try {
     const res = await fetch(`${API}/chat/send`, {
-      method:  'POST',
+      method: 'POST',
       headers: {
-        'Content-Type':  'application/json',
+        'Content-Type': 'application/json',
         'Authorization': `Bearer ${TOKEN}`,
       },
-      body:   JSON.stringify({ conversation_id: activeId, message: text }),
+      body: JSON.stringify({
+        conversation_id: activeId,
+        message: text
+      }),
       signal: controller.signal,
     });
 
@@ -358,32 +349,37 @@ async function sendMessage(src) {
 
     while (true) {
       const { done, value } = await reader.read();
+
       if (done) break;
 
       const lines = decoder.decode(value).split('\n');
 
       for (const line of lines) {
         if (!line.startsWith('data:')) continue;
+
         const raw = line.replace(/^data:\s*/, '').trim();
+
         if (raw === '[DONE]') break;
 
         try {
           const parsed = JSON.parse(raw);
-          if (parsed.error) throw new Error(parsed.error);
 
-          // token_usage is backend bookkeeping only — never rendered in
-          // the chat UI. It's still sent over the stream so the browser
-          // receives it (letigo.py uses it server-side to update the
-          // user's usage counter), but we just discard it here.
+          if (parsed.error) {
+            throw new Error(parsed.error);
+          }
+
+          // Token usage is handled by the backend.
           if (parsed.type === 'token_usage') continue;
 
           const token = parsed.token || '';
+
           if (!token) continue;
 
           fullReply += token;
 
           if (!botBubble) {
             typingRow.remove();
+
             const result = appendMessage('bot', '', now);
             botBubble = result.bubble;
           }
@@ -391,21 +387,29 @@ async function sendMessage(src) {
           botBubble.textContent = fullReply;
           scrollBottom();
 
-        } catch { /* skip malformed lines */ }
+        } catch {
+          // Ignore invalid stream data.
+        }
       }
     }
 
   } catch (err) {
     clearTimeout(timeoutId);
     typingRow.remove();
+
     const msg = err.name === 'AbortError'
       ? `Request timed out after ${CHAT_SEND_TIMEOUT_MS / 1000}s. The server may be overloaded — try again.`
       : err.message;
+
     appendMessage('bot', `Error: ${msg}`, timestamp());
   }
 
   if (fullReply) {
-    conv.messages.push({ role: 'bot', text: fullReply, time: timestamp() });
+    conv.messages.push({
+      role: 'bot',
+      text: fullReply,
+      time: timestamp()
+    });
   }
 
   streaming = false;
@@ -413,48 +417,54 @@ async function sendMessage(src) {
   scrollBottom();
 }
 
-/* ══════════════════════════════════════════════════════════
-   DOM HELPERS
-══════════════════════════════════════════════════════════ */
+// DOM helpers
 function startConversation() {
   conversationStarted = true;
+
   centerState.classList.add('hidden');
   messagesEl.classList.add('active');
   inputArea.style.display = 'flex';
-  setTimeout(() => document.getElementById('msgInputBottom').focus(), 50);
+
+  setTimeout(() => {
+    document.getElementById('msgInputBottom').focus();
+  }, 50);
 }
 
 function appendMessage(role, text, time) {
-  const row      = document.createElement('div');
-  row.className  = `msg-row ${role}`;
+  const row = document.createElement('div');
+  row.className = `msg-row ${role}`;
 
-  const bubble       = document.createElement('div');
+  const bubble = document.createElement('div');
   bubble.className   = 'msg-bubble';
   bubble.textContent = text;
 
-  const ts       = document.createElement('span');
+  const ts = document.createElement('span');
   ts.className   = 'msg-time';
   ts.textContent = time;
 
   row.appendChild(bubble);
   row.appendChild(ts);
   messagesEl.appendChild(row);
+
   scrollBottom();
+
   return { row, bubble };
 }
 
 function appendTyping() {
-  const row      = document.createElement('div');
-  row.className  = 'msg-row bot';
+  const row = document.createElement('div');
+  row.className = 'msg-row bot';
 
-  const bubble       = document.createElement('div');
-  bubble.className   = 'msg-bubble typing';
-  bubble.innerHTML   =
+  const bubble = document.createElement('div');
+  bubble.className = 'msg-bubble typing';
+  bubble.innerHTML =
     '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
 
   row.appendChild(bubble);
   messagesEl.appendChild(row);
+
   scrollBottom();
+
   return row;
 }
 
@@ -463,16 +473,22 @@ function scrollBottom() {
 }
 
 function disableSend(on) {
-  document.querySelectorAll('.send-btn').forEach(btn => btn.disabled = on);
+  document.querySelectorAll('.send-btn').forEach(btn => {
+    btn.disabled = on;
+  });
 }
 
 function timestamp() {
-  return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  return new Date().toLocaleTimeString([], {
+    hour: '2-digit',
+    minute: '2-digit'
+  });
 }
 
 function generateTitle(text) {
   const words = text.trim().split(/\s+/);
   const short = words.slice(0, 6).join(' ');
+
   return words.length > 6 ? short + '…' : short;
 }
 
@@ -483,47 +499,63 @@ function escHtml(t) {
     .replace(/>/g, '&gt;');
 }
 
-/* ══════════════════════════════════════════════════════════
-   CONVERSATIONS
-══════════════════════════════════════════════════════════ */
+// Conversations
 async function createConversation() {
   try {
     const data = await apiFetch('/chat/conversations/new', 'POST');
-    const conv = { id: data.conversation.id, title: 'New conversation', messages: [] };
+
+    const conv = {
+      id: data.conversation.id,
+      title: 'New conversation',
+      messages: []
+    };
+
     conversations.unshift(conv);
     activeId = conv.id;
+
     renderHistory();
+
     return conv;
+
   } catch {
-    const id   = 'local_' + Date.now();
-    const conv = { id, title: 'New conversation', messages: [] };
+    const id = 'local_' + Date.now();
+
+    const conv = {
+      id,
+      title: 'New conversation',
+      messages: []
+    };
+
     conversations.unshift(conv);
     activeId = id;
+
     renderHistory();
+
     return conv;
   }
 }
 
 async function newChat() {
   conversationStarted = false;
-  activeId             = null;
+  activeId            = null;
   streaming            = false;
 
   messagesEl.innerHTML = '';
   messagesEl.classList.remove('active');
-  inputArea.style.display  = 'none';
+  inputArea.style.display = 'none';
   centerState.classList.remove('hidden');
-  topbarTitle.textContent  = '';
+  topbarTitle.textContent = '';
 
   clearStagedPreviews();
 
   ['msgInputCenter', 'msgInputBottom'].forEach(id => {
-    const el        = document.getElementById(id);
-    el.value        = '';
+    const el = document.getElementById(id);
+    el.value = '';
     el.style.height = 'auto';
   });
 
   disableSend(false);
+
   if (isMobile()) closeMobile();
 
   await createConversation();
@@ -533,7 +565,11 @@ async function deleteConversation(id, e) {
   e.stopPropagation();
 
   if (!id.startsWith('local_')) {
-    try { await apiFetch(`/chat/conversations/${id}`, 'DELETE'); } catch { /* continue */ }
+    try {
+      await apiFetch(`/chat/conversations/${id}`, 'DELETE');
+    } catch {
+      // Continue removing it from the UI.
+    }
   }
 
   conversations = conversations.filter(c => c.id !== id);
@@ -547,13 +583,15 @@ async function deleteConversation(id, e) {
 
 function renderHistory() {
   const q = (document.getElementById('searchInput').value || '').toLowerCase();
+
   historyList.innerHTML = '';
 
   conversations.forEach(conv => {
     if (q && !conv.title.toLowerCase().includes(q)) return;
 
-    const item     = document.createElement('div');
-    item.className = 'history-item' + (conv.id === activeId ? ' active' : '');
+    const item = document.createElement('div');
+    item.className =
+      'history-item' + (conv.id === activeId ? ' active' : '');
 
     item.innerHTML = `
       <span class="history-item-title">${escHtml(conv.title)}</span>
@@ -565,38 +603,45 @@ function renderHistory() {
         </svg>
       </button>`;
 
-    item.querySelector('.history-delete').addEventListener('click', e => deleteConversation(conv.id, e));
+    item
+      .querySelector('.history-delete')
+      .addEventListener('click', e => deleteConversation(conv.id, e));
+
     item.addEventListener('click', () => loadConversation(conv.id));
+
     historyList.appendChild(item);
   });
 }
 
-function filterHistory() { renderHistory(); }
+function filterHistory() {
+  renderHistory();
+}
 
-/* ══════════════════════════════════════════════════════════
-   API HELPER
-══════════════════════════════════════════════════════════ */
+// API
 async function apiFetch(path, method = 'GET', body = null) {
   const opts = {
     method,
     headers: {
-      'Content-Type':  'application/json',
+      'Content-Type': 'application/json',
       'Authorization': `Bearer ${TOKEN}`,
     },
   };
-  if (body) opts.body = JSON.stringify(body);
+
+  if (body) {
+    opts.body = JSON.stringify(body);
+  }
 
   const res = await fetch(`${API}${path}`, opts);
+
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err.detail || `HTTP ${res.status}`);
   }
+
   return res.json();
 }
 
-/* ══════════════════════════════════════════════════════════
-   SKELETONS
-══════════════════════════════════════════════════════════ */
+// Loading skeletons
 function showHistorySkeleton() {
   historyList.innerHTML = `
     <div class="skeleton-item">
@@ -645,35 +690,40 @@ function showMsgSkeletons() {
     </div>`;
 }
 
-/* ══════════════════════════════════════════════════════════
-   LOAD CONVERSATION
-══════════════════════════════════════════════════════════ */
+// Load conversation
 async function loadConversation(id) {
   const conv = conversations.find(c => c.id === id);
+
   if (!conv) return;
 
   activeId = id;
-  topbarTitle.textContent = conv.title !== 'New conversation' ? conv.title : '';
+  topbarTitle.textContent =
+    conv.title !== 'New conversation' ? conv.title : '';
 
   if (conv.messages.length === 0 && !id.startsWith('local_')) {
     messagesEl.innerHTML = '';
-    conversationStarted   = true;
+    conversationStarted = true;
     centerState.classList.add('hidden');
     messagesEl.classList.add('active');
     inputArea.style.display = 'flex';
+
     showMsgSkeletons();
     scrollBottom();
 
     try {
       const data = await apiFetch(`/chat/history/${id}`);
+
       conv.messages = data.messages.map(m => ({
         role: m.role === 'assistant' ? 'bot' : m.role,
         text: m.content,
         time: new Date(m.created_at).toLocaleTimeString([], {
-          hour: '2-digit', minute: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
         }),
       }));
-    } catch { /* use cached */ }
+    } catch {
+      // Use cached messages if loading fails.
+    }
 
     messagesEl.innerHTML = '';
 
@@ -683,41 +733,49 @@ async function loadConversation(id) {
       inputArea.style.display = 'none';
       centerState.classList.remove('hidden');
     } else {
-      conv.messages.forEach(m => appendMessage(m.role, m.text, m.time));
+      conv.messages.forEach(m => {
+        appendMessage(m.role, m.text, m.time);
+      });
+
       scrollBottom();
     }
 
   } else if (conv.messages.length > 0) {
     messagesEl.innerHTML = '';
-    conversationStarted   = true;
+    conversationStarted = true;
     centerState.classList.add('hidden');
     messagesEl.classList.add('active');
     inputArea.style.display = 'flex';
-    conv.messages.forEach(m => appendMessage(m.role, m.text, m.time));
+
+    conv.messages.forEach(m => {
+      appendMessage(m.role, m.text, m.time);
+    });
+
     scrollBottom();
+
   } else {
     messagesEl.innerHTML = '';
-    conversationStarted   = false;
+    conversationStarted = false;
     messagesEl.classList.remove('active');
-    inputArea.style.display  = 'none';
+    inputArea.style.display = 'none';
     centerState.classList.remove('hidden');
   }
 
   renderHistory();
+
   if (isMobile()) closeMobile();
 }
 
-/* ══════════════════════════════════════════════════════════
-   STARTUP
-══════════════════════════════════════════════════════════ */
+// Startup
 async function init() {
   showHistorySkeleton();
 
   try {
     const data = await apiFetch('/chat/conversations');
+
     conversations = data.conversations.map(c => ({
-      id:       c.id,
-      title:    c.title,
+      id: c.id,
+      title: c.title,
       messages: [],
     }));
   } catch {
@@ -726,14 +784,19 @@ async function init() {
 
   if (conversations.length > 0) {
     renderHistory();
+
     conversationStarted = true;
     centerState.classList.add('hidden');
     messagesEl.classList.add('active');
     inputArea.style.display = 'flex';
+
     activeId = conversations[0].id;
+
     showMsgSkeletons();
     scrollBottom();
+
     await loadConversation(conversations[0].id);
+
   } else {
     renderHistory();
     await newChat();
