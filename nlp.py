@@ -1,14 +1,4 @@
-"""
-nlp.py — Hepozy intent classification for output-type routing.
-
-SCOPE: this is a rule-based classifier for ONE narrow job — deciding
-which of four intent buckets a message falls into, so Prolog can pick
-an output type. It is NOT a general NLU system. It will misclassify
-phrasing it wasn't written for — that's an honest limitation, not a
-bug to silently paper over. Expand the pattern lists as you observe
-real Hepozy traffic, don't pretend this generalizes on day one.
-"""
-
+ 
 import re
 
 
